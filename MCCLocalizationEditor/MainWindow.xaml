@@ -91,7 +91,7 @@
 				HorizontalAlignment="Left" VerticalAlignment="Center" Margin="4" Grid.Row="3" />
 
 		<TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" Margin="4" Grid.Row="3">
-			MCC Localization Editor v1 by Zeddikins.
+			MCC Localization Editor v1.0a by Zeddikins.
 			<Hyperlink NavigateUri="https://github.com/Lord-Zedd/MCCLocalizationEditor" RequestNavigate="Hyperlink_RequestNavigate">
 				GitHub
 			</Hyperlink>

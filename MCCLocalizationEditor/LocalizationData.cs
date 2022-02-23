@@ -136,8 +136,10 @@ namespace MCCLocalizationEditor
 			{
 				string content = entry.InnerText;
 
-				//h3 terminals contain a weird character that xml doesn't support, could be more?
-				string refilt = content.Replace("\\f", "\f");
+				//check for known weird characters and unescape them
+				string refilt = content.Replace("\\a", "\a")
+					.Replace("\\b", "\b")
+					.Replace("\\f", "\f");
 
 				if (entry.Attributes["key"] != null)
 				{
@@ -180,9 +182,12 @@ namespace MCCLocalizationEditor
 					foreach (LocalizationPair entry in strings)
 					{
 						writer.WriteStartElement("entry");
+						writer.WriteAttributeString("xml", "space", null, "preserve");
 						writer.WriteAttributeString("keyHash", entry.KeyHash.ToString());
-						//h3 terminals contain a weird character that xml doesn't support, could be more?
-						string filt = entry.String.Replace("\f", "\\f");
+						//check for known weird characters and escape them
+						string filt = entry.String.Replace("\a", "\\a")
+							.Replace("\b", "\\b")
+							.Replace("\f", "\\f");
 						writer.WriteValue(filt);
 						writer.WriteEndElement();
 					}
