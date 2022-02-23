@@ -1,0 +1,32 @@
+﻿<Window x:Class="MCCLocalizationEditor.Dialogs.LocaleHelp"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MCCLocalizationEditor.Dialogs"
+        mc:Ignorable="d" WindowStyle="ToolWindow" Icon="../icon.ico"
+        Title="About Localization Files" Height="400" Width="600">
+    <Grid Margin="4">
+		<TextBlock TextWrapping="Wrap">
+			Localization files aren't the most modification-friendly files. Key strings are stored as CRC32MPEG hashes instead so they aren't easily searchable without the original key.
+			These keys are referenced by the game by prefixing a $ to the string. If there is no match the key is displayed instead. (The $ is not hashed)
+			<LineBreak/>
+			<LineBreak/>
+			<Run TextDecorations="Underline" FontStyle="Italic">The bin files themselves store an all-caps hash of the filename, so when saving a bin with this tool, you should use the intended name and avoid renaming past that point. A bad hash will hang the game.</Run>
+			<LineBreak/>
+			<LineBreak/>
+			In recent MCC builds game-specific bin files were introduced that override the localization stored in the cache files. String IDs become the key string and are hashed all the same.
+			If a string is missing from a bin file, then the engine seems to fall back to the cache file's string.
+			<LineBreak/>
+			<LineBreak/>
+			Always back up your files as any changes you make will flag the anticheat.
+			<LineBreak/>
+			<LineBreak/>
+			There is also limited HTML-like markup support available in these files; most work as expected but image source should use <Run FontStyle="Italic">img://IMAGE_NAME</Run> where <Run FontStyle="Italic">IMAGE_NAME</Run>
+			refers to the name of an image within a texture pack.
+			<LineBreak/>
+			<LineBreak/>
+			However, not all text fields will actually resolve your markup, instead displaying the code as plain text.
+		</TextBlock>
+    </Grid>
+</Window>
