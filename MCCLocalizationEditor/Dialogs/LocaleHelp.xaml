@@ -5,28 +5,135 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MCCLocalizationEditor.Dialogs"
         mc:Ignorable="d" WindowStyle="ToolWindow" Icon="../icon.ico"
-        Title="About Localization Files" Height="400" Width="600">
+        Title="About Localization Files" Height="420" Width="650">
     <Grid Margin="4">
-		<TextBlock TextWrapping="Wrap">
-			Localization files aren't the most modification-friendly files. Key strings are stored as CRC32MPEG hashes instead so they aren't easily searchable without the original key.
-			These keys are referenced by the game by prefixing a $ to the string. If there is no match the key is displayed instead. (The $ is not hashed)
-			<LineBreak/>
-			<LineBreak/>
-			<Run TextDecorations="Underline" FontStyle="Italic">The bin files themselves store an all-caps hash of the filename, so when saving a bin with this tool, you should use the intended name and avoid renaming past that point. A bad hash will hang the game.</Run>
-			<LineBreak/>
-			<LineBreak/>
-			In recent MCC builds game-specific bin files were introduced that override the localization stored in the cache files. String IDs become the key string and are hashed all the same.
-			If a string is missing from a bin file, then the engine seems to fall back to the cache file's string.
-			<LineBreak/>
-			<LineBreak/>
-			Always back up your files as any changes you make will flag the anticheat.
-			<LineBreak/>
-			<LineBreak/>
-			There is also limited HTML-like markup support available in these files; most work as expected but image source should use <Run FontStyle="Italic">img://IMAGE_NAME</Run> where <Run FontStyle="Italic">IMAGE_NAME</Run>
-			refers to the name of an image within a texture pack.
-			<LineBreak/>
-			<LineBreak/>
-			However, not all text fields will actually resolve your markup, instead displaying the code as plain text.
-		</TextBlock>
+		<TabControl>
+			<TabItem Header="General">
+				<RichTextBox ScrollViewer.VerticalScrollBarVisibility="Auto" IsReadOnly="True">
+					<RichTextBox.Document>
+						<FlowDocument>
+							<Paragraph>
+								Localization files aren't the most modification-friendly files. Key strings are hashed as upper case with CRC32MPEG and stored using the hash so they aren't easily searchable without the original key.
+					These keys are referenced by the game by prefixing a $ to the string. If there is no match the key is displayed instead. (The $ is not hashed)
+								<LineBreak/>
+								<LineBreak/>
+								<Run TextDecorations="Underline" FontStyle="Italic">The bin files themselves store a hash of the filename like a key string, so when saving a bin with this tool, you should use the intended name and avoid renaming past that point. A bad hash will hang the game.</Run>
+								<LineBreak/>
+								<LineBreak/>
+								These files were limited to just MCC's UI up until 2022 when game-specific bin files were introduced that override the localization stored in the cache files. There is a specific format to key strings. (See the Keys tab).
+					If a string is missing from a bin file, then the engine should fall back to the cache file's string.
+								<LineBreak/>
+								<LineBreak/>
+								However, because strings were externalized there may be string differences from the cache files themselves. This is especially the case for Halo 1, which uses CEA's own external set with various changes made.
+								<LineBreak/>
+								<LineBreak/>
+								Modifications to the shipped bins WILL flag the anticheat so if you should keep a backup.
+								<LineBreak/>
+								<LineBreak/>
+								As of 2023, it is now possible to include bins with your Steam Workshop mods, just put them in folders mirroring MCC's install, so
+								<Run FontWeight="Medium">[mod_folder]\Data\UI\Localization\[bin file]</Run>. This will override MCC's copy when playing your mod.
+								<LineBreak/>
+								<LineBreak/>
+								There is also limited HTML-like markup support available in these files; most work as expected but image source should use
+								<Run FontStyle="Italic">img://IMAGE_NAME</Run> where
+								<Run FontStyle="Italic">IMAGE_NAME</Run>
+								refers to the name of an image within a texture pack.
+								<LineBreak/>
+								<LineBreak/>
+								However, not all text fields will actually resolve your markup, instead displaying the code as plain text.
+							</Paragraph>
+						</FlowDocument>
+					</RichTextBox.Document>
+				</RichTextBox>
+			</TabItem>
+			<TabItem Header="Keys" ScrollViewer.VerticalScrollBarVisibility="Auto">
+				<RichTextBox ScrollViewer.VerticalScrollBarVisibility="Auto" IsReadOnly="True">
+					<RichTextBox.Document>
+						<FlowDocument>
+							<Paragraph>
+								The keys used for each game use a particular format. Halo 2 and later are pretty straightforward but Halo 1 needs some explaining. Any instance of "|n" needs to be replaced with a real newline.
+								<LineBreak/>
+								<LineBreak/>
+								<Run FontWeight="Bold" FontSize="16">Halo 1:</Run>
+								<LineBreak/>
+								During the development of Halo CE Anniversary, the game's strings were pulled from the tags for Saber's own engine. This process used somewhat hardcoded IDs that MCC would later adapt directly.
+								<LineBreak/>
+								<Run FontWeight="Bold">HUD Messages:</Run>
+								<LineBreak/>
+								For HUD messages, strings are stored split into elements as they are when added to a cache file. Only text elements are included, with variables being skipped.
+								Then there is also an extra blank element at the end if it ended on a variable element. The quirks of Halo 1 should be solved automatically by using the Import Source option.
+								<LineBreak/>
+								<LineBreak/>
+								The path
+								<Run FontWeight="Medium">ui\hud\hud messages</Run> resolves to
+								<Run FontWeight="Medium">HUD_GLOBALS_[message index]_[element index]</Run> , ex
+								<Run FontWeight="Medium">HUD_GLOBALS_0_2</Run> (0_1 contained %action and was skipped).
+								<LineBreak/>
+								<LineBreak/>
+								In these messages, enter_vehicle is a special case where the string was copied 3 times, and "%custom-1" is replaced with a seat type These 3 all occupy element 0 but the key is appended with the seat, ex
+								<Run FontWeight="Medium">HUD_GLOBALS_6_0_DRIVER</Run>. Then, the split versions are stored in elements 10, 20, and 30 ex
+								<Run FontWeight="Medium">HUD_GLOBALS_6_10</Run>.
+								<LineBreak/>
+								<LineBreak/>
+								The path
+								<Run FontWeight="Medium">levels\[scenario]\hud messages</Run> resolves to
+								<Run FontWeight="Medium">[scenario]_HUD_MESSAGES_[message index]_[element index]</Run> , ex
+								<Run FontWeight="Medium">A10_HUD_MESSAGES_4_2</Run> .
+								<LineBreak/>
+								<LineBreak/>
+								<Run FontWeight="Bold">Unicode Lists:</Run>
+								<LineBreak/>
+								For unicode lists, things are also somewhat hardcoded.
+								<LineBreak/>
+								<LineBreak/>
+								The path "
+								<Run FontWeight="Medium">levels\[scenario]\[name]</Run> resolves to
+								<Run FontWeight="Medium">[scenario]_[name]_[message index]</Run> , ex
+								<Run FontWeight="Medium">A50_CUSTOM_OBJECT_NAMES_1</Run> .
+								<LineBreak/>
+								<LineBreak/>
+								The path
+								<Run FontWeight="Medium">ui\hud\[name]</Run> resolves to
+								<Run FontWeight="Medium">UH_[name]_[message index]</Run> , ex
+								<Run FontWeight="Medium">UH_HUD_ICON_MESSAGES_3</Run> .
+								<LineBreak/>
+								<LineBreak/>
+								The path
+								<Run FontWeight="Medium">ui\[name]</Run> resolves to
+								<Run FontWeight="Medium">U_[name]_[message index]</Run>, ex
+								<Run FontWeight="Medium">U_MULTIPLAYER_GAME_TEXT_5</Run>.
+								<LineBreak/>
+								<LineBreak/>
+								The path
+								<Run FontWeight="Medium">ui\shell\solo_game\player_help\[name]</Run> resolves to
+								<Run FontWeight="Medium">USSP_[name]_[message index]</Run> , ex
+								<Run FontWeight="Medium">USSP_PLAYER_HELP_TEXT_A10_2</Run> .
+								<LineBreak/>
+								<LineBreak/>
+								Other lists might not be supported.
+								<LineBreak/>
+								<LineBreak/>
+								<Run FontWeight="Bold" FontSize="16">Other:</Run>
+								<LineBreak/>
+								<Run FontWeight="Bold">Multilingual Unicode String Lists:</Run>
+								<LineBreak/>
+								For later titles' multilingual unicode string lists, they all use the format
+								<Run FontWeight="Medium">[tag_path]_[string_id]</Run>, ex 
+								<Run FontWeight="Medium">UI\HUD\HUD_MESSAGES_BR_PICKUP</Run> .
+								<LineBreak/>
+								<LineBreak/>
+								<Run FontWeight="Bold">Subtitles:</Run>
+								<LineBreak/>
+								For subtitles, all titles use the format
+								<Run FontWeight="Medium">[tag_path][optional: permutation_index]</Run> , ex
+								<Run FontWeight="Medium">SOUND\DIALOG\COMBAT\FLOOD_GM3\04_SEARCH\PRST</Run> for all permutations (officially these are left blank), or 
+								<Run FontWeight="Medium">SOUND\DIALOG\COMBAT\FLOOD_GM3\04_SEARCH\PRST1</Run> for the first permutation of the sound.
+							</Paragraph>
+						</FlowDocument>
+					</RichTextBox.Document>
+				</RichTextBox>
+			</TabItem>
+		</TabControl>
+
     </Grid>
 </Window>

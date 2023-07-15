@@ -27,6 +27,7 @@
 				<MenuItem Header="Export XML File..." ToolTip="Export an XML file for editing with your preferred text editor application." Click="MenuItemSaveXML_Click" />
 			</MenuItem>
 			<MenuItem Header="Add Entry..." Click="MenuItemAdd_Click" />
+			<MenuItem Header="Import Source Files..." Click="MenuItemImport_Click" />
 
 			<MenuItem Header="About Locale Files..." Click="MenuItemHelp_Click" />
 
@@ -91,7 +92,7 @@
 				HorizontalAlignment="Left" VerticalAlignment="Center" Margin="4" Grid.Row="3" />
 
 		<TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" Margin="4" Grid.Row="3">
-			MCC Localization Editor v1.0a by Zeddikins.
+			MCC Localization Editor v1.1 by Zeddikins.
 			<Hyperlink NavigateUri="https://github.com/Lord-Zedd/MCCLocalizationEditor" RequestNavigate="Hyperlink_RequestNavigate">
 				GitHub
 			</Hyperlink>

@@ -1,0 +1,38 @@
+﻿<Window x:Class="MCCLocalizationEditor.Dialogs.SourceDragDrop"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MCCLocalizationEditor.Dialogs"
+        mc:Ignorable="d"
+		x:Name="window"
+        Title="Load Source Strings" Height="450" Width="700">
+    <Grid Margin="4" AllowDrop="True" Drop="Grid_Drop">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+		</Grid.RowDefinitions>
+
+		<TextBlock TextWrapping="Wrap">
+			You should have the original bin file for your game opened. To add your source strings, select the intended title from the dropdown below then drag and drop your files to this window. It is recommended that you only include files that you've modified.
+			<LineBreak/>
+			<LineBreak/>
+			Clicking "Read Files" will parse and add them to the current collection. This process will overwrite any existing strings that use the same keys.
+			<LineBreak/>
+			<LineBreak/>
+			<Run FontWeight="Bold" FontStyle="Italic">It is important that you are dragging files from within your Halo Editing Kit's data (or data_sp, etc) folder as the relative path is needed to create the proper keys.</Run> For info on how these keys are set up, check the "About Locale Files" button on the main window.
+			<LineBreak/>
+		</TextBlock>
+		<StackPanel Orientation="Horizontal" Grid.Row="1" Margin="0,4,0,0">
+			<TextBlock Text="Game:" VerticalAlignment="Center"/>
+			<ComboBox x:Name="cmbGame" Width="150" Margin="4,0,0,0" SelectedIndex="0">
+				<ComboBoxItem Content="Please Select"/>
+				<ComboBoxItem Content="Halo 1"/>
+				<ComboBoxItem Content="Everything Else"/>
+			</ComboBox>
+			<Button Content="Read Files" Width="200" Margin="16,0,0,0" Click="Button_Click" />
+		</StackPanel>
+		<ListBox x:Name="fileList" Grid.Row="2" Margin="0,4,0,0" />
+	</Grid>
+</Window>

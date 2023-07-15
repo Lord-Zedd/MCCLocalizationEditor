@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -15,6 +16,8 @@ namespace MCCLocalizationEditor
 	{
 		public ObservableCollection<LocalizationPair> Strings { get; set; }
 		private string _lastOpenedFile = "";
+
+		SourceDragDrop sdd = null;
 
 		public MainWindow()
 		{
@@ -132,6 +135,38 @@ namespace MCCLocalizationEditor
 			EditorGrid.ScrollIntoView(astring.ResultEntry);
 		}
 
+		private void MenuItemImport_Click(object sender, RoutedEventArgs e)
+		{
+			if (sdd != null)
+			{
+				sdd.Focus();
+				return;
+			}
+
+			sdd = new SourceDragDrop();
+			sdd.Closing += SourceDD_Closing;
+			sdd.Owner = this;
+			sdd.Show();
+		}
+
+		private void SourceDD_Closing(object sender, CancelEventArgs e)
+		{
+			if (sdd.Strings != null)
+			{
+				List<LocalizationPair> strings = Strings.ToList();
+
+				//remove previous instances of the new strings
+				foreach (LocalizationPair loc in sdd.Strings)
+					strings.RemoveAll(x => x.KeyHash == loc.KeyHash);
+
+				strings.AddRange(sdd.Strings);
+				SetStringCollection(strings);
+			}
+
+			sdd.Closing -= SourceDD_Closing;
+			sdd = null;
+		}
+
 		private void MenuItemHelp_Click(object sender, RoutedEventArgs e)
 		{
 			LocaleHelp help = new LocaleHelp();
@@ -150,7 +185,7 @@ namespace MCCLocalizationEditor
 					return;
 				}
 
-				uint hash = CRC32MPEG.CountCRC(Encoding.ASCII.GetBytes(TextBoxKeyString.Text));
+				uint hash = CRC32MPEG.CountCRC(Encoding.ASCII.GetBytes(TextBoxKeyString.Text.ToUpper()));
 
 				result = Strings.FirstOrDefault(p => p.KeyHash == hash);
 

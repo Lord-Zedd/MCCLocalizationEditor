@@ -58,6 +58,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Dialogs\SourceDragDrop.xaml.cs">
+      <DependentUpon>SourceDragDrop.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\AddString.xaml.cs">
       <DependentUpon>AddString.xaml</DependentUpon>
     </Compile>
@@ -66,6 +69,10 @@
     </Compile>
     <Compile Include="LocalizationPair.cs" />
     <Compile Include="ReaderExtender.cs" />
+    <Page Include="Dialogs\SourceDragDrop.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Dialogs\AddString.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

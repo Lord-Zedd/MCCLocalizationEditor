@@ -29,7 +29,7 @@ namespace MCCLocalizationEditor
 
 		public LocalizationPair(string key, string value)
 		{
-			KeyHash = CRC32MPEG.CountCRC(Encoding.ASCII.GetBytes(key));
+			KeyHash = CRC32MPEG.CountCRC(Encoding.ASCII.GetBytes(key.ToUpper()));
 			String = value;
 		}
 
