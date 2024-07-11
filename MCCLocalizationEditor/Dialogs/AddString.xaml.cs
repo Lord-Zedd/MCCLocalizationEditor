@@ -7,16 +7,19 @@ namespace MCCLocalizationEditor.Dialogs
 	/// </summary>
 	public partial class AddString : Window
 	{
+		UnicodeCollection _collection;
 		public LocalizationPair ResultEntry { get; protected set; }
 
-		public AddString()
+		public AddString(UnicodeCollection collection)
 		{
 			InitializeComponent();
 			TextBoxValueString.Focus();
+			_collection = collection;
 		}
 
 		private void Import_Click(object sender, RoutedEventArgs e)
 		{
+			string cleanString = _collection.StringsToUnicode(TextBoxValueString.Text);
 
 			if ((bool)RadioKeyString.IsChecked)
 			{
@@ -26,7 +29,7 @@ namespace MCCLocalizationEditor.Dialogs
 					return;
 				}
 
-				ResultEntry = new LocalizationPair(TextBoxKeyString.Text, TextBoxValueString.Text);
+				ResultEntry = new LocalizationPair(TextBoxKeyString.Text, cleanString);
 			}
 			else
 			{
@@ -38,7 +41,7 @@ namespace MCCLocalizationEditor.Dialogs
 					return;
 				}
 
-				ResultEntry = new LocalizationPair(hash, TextBoxValueString.Text);
+				ResultEntry = new LocalizationPair(hash, cleanString);
 			}
 
 			DialogResult = true;

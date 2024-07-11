@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Navigation;
 using MCCLocalizationEditor.Dialogs;
 
@@ -17,7 +19,11 @@ namespace MCCLocalizationEditor
 		public ObservableCollection<LocalizationPair> Strings { get; set; }
 		private string _lastOpenedFile = "";
 
-		SourceDragDrop sdd = null;
+		SourceDragDrop srcDD = null;
+		AddString addStr = null;
+		LocaleHelp locHelp = null;
+
+		UnicodeBank _unicBank;
 
 		public MainWindow()
 		{
@@ -34,6 +40,31 @@ namespace MCCLocalizationEditor
 			Strings.Clear();
 			strings.ForEach(Strings.Add);
 			EditorGrid.ItemsSource = Strings;
+		}
+
+		private void MergeStringCollection(List<LocalizationPair> newStrings)
+		{
+			if (newStrings == null)
+				return;
+
+			List<LocalizationPair> currentStrings = Strings.ToList();
+
+			//remove previous instances of the new strings
+			foreach (LocalizationPair loc in newStrings)
+				currentStrings.RemoveAll(x => x.KeyHash == loc.KeyHash);
+
+			currentStrings.AddRange(newStrings);
+			SetStringCollection(currentStrings);
+		}
+
+		private UnicodeCollection GetUnicodeCollection()
+		{
+			if (_unicBank == null)
+				return new UnicodeCollection(null);
+
+			UnicodeGame game = (UnicodeGame)((ComboBoxItem)cmbGame.SelectedItem).Tag;
+
+			return _unicBank.WithdrawCollection(game);
 		}
 
 		private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
@@ -60,7 +91,13 @@ namespace MCCLocalizationEditor
 			if (!(bool)ofd.ShowDialog())
 				return;
 
-			SetStringCollection(LocalizationData.ReadBinFile(ofd.FileName));
+			var bin = LocalizationData.ReadBinFile(ofd.FileName);
+			if (bin == null)
+			{
+				MessageBox.Show($"Bin file\r\n{ofd.SafeFileName}\r\nFailed to open.", "Bin File");
+				return;
+			}
+			SetStringCollection(bin);
 
 			_lastOpenedFile = ofd.SafeFileName;
 			TxtLastFile.Text = _lastOpenedFile;
@@ -99,7 +136,31 @@ namespace MCCLocalizationEditor
 			if (!(bool)ofd.ShowDialog())
 				return;
 
-			SetStringCollection(LocalizationData.ReadXMLFile(ofd.FileName));
+			SetStringCollection(LocalizationData.ReadXMLFile(ofd.FileName, GetUnicodeCollection()));
+		}
+
+		private void MenuItemImportXML_Click(object sender, RoutedEventArgs e)
+		{
+			if (Strings.Count > 0)
+			{
+				MessageBoxResult result = MessageBox.Show("There are currently strings loaded. Importing an XML will overwrite any existing strings with matching hashes. Continue?", "Confirm Action", MessageBoxButton.OKCancel);
+				if (result != MessageBoxResult.OK)
+					return;
+			}
+
+			Microsoft.Win32.OpenFileDialog ofd = new Microsoft.Win32.OpenFileDialog
+			{
+				RestoreDirectory = true,
+				Title = "Open XML",
+				Filter = "Localization XML (*.xml)|*.xml"
+			};
+			if (!(bool)ofd.ShowDialog())
+				return;
+
+
+			var xmlStrings = LocalizationData.ReadXMLFile(ofd.FileName, GetUnicodeCollection());
+
+			MergeStringCollection(xmlStrings);
 		}
 
 		private void MenuItemSaveXML_Click(object sender, RoutedEventArgs e)
@@ -113,64 +174,83 @@ namespace MCCLocalizationEditor
 			if (!(bool)sfd.ShowDialog())
 				return;
 
-			LocalizationData.SaveXMLFile(sfd.FileName, Strings.ToList());
+			LocalizationData.SaveXMLFile(sfd.FileName, Strings.ToList(), GetUnicodeCollection());
+		}
+
+		private void MenuItemSaveXMLEmpty_Click(object sender, RoutedEventArgs e)
+		{
+			Microsoft.Win32.SaveFileDialog sfd = new Microsoft.Win32.SaveFileDialog
+			{
+				RestoreDirectory = true,
+				Title = "Save XML",
+				Filter = "Localization XML (*.xml)|*.xml",
+			};
+			if (!(bool)sfd.ShowDialog())
+				return;
+
+			LocalizationData.SaveXMLFile(sfd.FileName, null, GetUnicodeCollection());
 		}
 
 		#endregion
 
 		private void MenuItemAdd_Click(object sender, RoutedEventArgs e)
 		{
-			AddString astring = new AddString();
-			astring.ShowDialog();
+			addStr = new AddString(GetUnicodeCollection());
+			addStr.ShowDialog();
 
-			if (astring.DialogResult.Value == false)
+			if (addStr.DialogResult.Value == false)
 				return;
 
 			List<LocalizationPair> strings = Strings.ToList();
-			strings.Add(astring.ResultEntry);
+			strings.Add(addStr.ResultEntry);
 			SetStringCollection(strings);
 
 			EditorGrid.Focus();
-			EditorGrid.SelectedItem = astring.ResultEntry;
-			EditorGrid.ScrollIntoView(astring.ResultEntry);
+			EditorGrid.SelectedItem = addStr.ResultEntry;
+			EditorGrid.ScrollIntoView(addStr.ResultEntry);
+			addStr = null;
 		}
 
 		private void MenuItemImport_Click(object sender, RoutedEventArgs e)
 		{
-			if (sdd != null)
+			if (srcDD != null)
 			{
-				sdd.Focus();
+				srcDD.Focus();
 				return;
 			}
 
-			sdd = new SourceDragDrop();
-			sdd.Closing += SourceDD_Closing;
-			sdd.Owner = this;
-			sdd.Show();
+			srcDD = new SourceDragDrop(_unicBank);
+			srcDD.Closing += SourceDD_Closing;
+			srcDD.Owner = this;
+			srcDD.Show();
 		}
 
 		private void SourceDD_Closing(object sender, CancelEventArgs e)
 		{
-			if (sdd.Strings != null)
-			{
-				List<LocalizationPair> strings = Strings.ToList();
+			MergeStringCollection(srcDD.Strings);
 
-				//remove previous instances of the new strings
-				foreach (LocalizationPair loc in sdd.Strings)
-					strings.RemoveAll(x => x.KeyHash == loc.KeyHash);
-
-				strings.AddRange(sdd.Strings);
-				SetStringCollection(strings);
-			}
-
-			sdd.Closing -= SourceDD_Closing;
-			sdd = null;
+			srcDD.Closing -= SourceDD_Closing;
+			srcDD = null;
 		}
 
 		private void MenuItemHelp_Click(object sender, RoutedEventArgs e)
 		{
-			LocaleHelp help = new LocaleHelp();
-			help.ShowDialog();
+			if (locHelp != null)
+			{
+				locHelp.Focus();
+				return;
+			}
+
+			locHelp = new LocaleHelp();
+			locHelp.Closing += Help_Closing;
+			locHelp.Owner = this;
+			locHelp.Show();
+		}
+
+		private void Help_Closing(object sender, CancelEventArgs e)
+		{
+			locHelp.Closing -= Help_Closing;
+			locHelp = null;
 		}
 
 		private void ButtonFind_Click(object sender, RoutedEventArgs e)
@@ -230,6 +310,17 @@ namespace MCCLocalizationEditor
 		private void ButtonClear_Click(object sender, RoutedEventArgs e)
 		{
 			Strings.Clear();
+		}
+
+		private void window_Loaded(object sender, RoutedEventArgs e)
+		{
+			string mccLEPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+			_unicBank = new UnicodeBank(Path.Combine(mccLEPath, @"unicode\"));
+			if (!_unicBank.Initialized)
+			{
+				MessageBox.Show($"An error occurred while loading XML files from the \\unicode directory\r\n\r\n{_unicBank.Error}\r\n\r\nMCC Localization Editor will now close.", "Unicode XMLs");
+				Close();
+			}
 		}
 	}
 }

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace MCCLocalizationEditor.Dialogs
 {
@@ -12,6 +13,7 @@ namespace MCCLocalizationEditor.Dialogs
 	/// </summary>
 	public partial class SourceDragDrop : Window
 	{
+		UnicodeBank _unicBank;
 		public List<LocalizationPair> Strings = new List<LocalizationPair>();
 
 		public List<string> Files = new List<string>();
@@ -60,16 +62,22 @@ namespace MCCLocalizationEditor.Dialogs
 			"%custom-8"
 		};
 
-		public SourceDragDrop()
+		public SourceDragDrop(UnicodeBank bank)
 		{
 			InitializeComponent();
+			_unicBank = bank;
 		}
 
 		private void Button_Click(object sender, RoutedEventArgs e)
 		{
-			if (cmbGame.SelectedIndex == 0)
+			if (cmbGame.SelectedItem == null)
 				return;
-			else if (cmbGame.SelectedIndex == 1)
+
+			UnicodeGame game = (UnicodeGame)((ComboBoxItem)cmbGame.SelectedItem).Tag;
+
+			if (game == UnicodeGame.None)
+				return;
+			else if (game == UnicodeGame.H1)
 			{
 				foreach (string file in Files)
 				{
@@ -82,13 +90,13 @@ namespace MCCLocalizationEditor.Dialogs
 						continue;
 				}
 			}
-			else if (cmbGame.SelectedIndex == 2)
+			else
 			{
 				foreach (string file in Files)
 				{
 					string ext = Path.GetExtension(file);
 					if (ext == ".txt")
-						Strings.AddRange(ReadUnicodeList(file));
+						Strings.AddRange(ReadUnicodeList(file, game));
 					else
 						continue;
 				}
@@ -191,8 +199,8 @@ namespace MCCLocalizationEditor.Dialogs
 
 				Match m = Regex.Match(msg, @"(?<name>.+)\s*=\s*(?<string>.+)");
 
-				if (m == null)
-					throw new Exception("hud message file " + path + " is invalid");
+				if (!m.Success)
+					continue;
 
 				string name = m.Groups["name"].Value;
 				string text = m.Groups["string"].Value;
@@ -216,20 +224,36 @@ namespace MCCLocalizationEditor.Dialogs
 					result.Add(new LocalizationPair(key + i + "_0_gunner", FormatSpecialHUDVehicleMessage(gunner)));
 					result.Add(new LocalizationPair(key + i + "_0_side", FormatSpecialHUDVehicleMessage(side)));
 
-					result.AddRange(HandleHUDMessage(key + i, driver, true, 10));
-					result.AddRange(HandleHUDMessage(key + i, gunner, true, 20));
-					result.AddRange(HandleHUDMessage(key + i, side, true, 30));
+					var driverList = HandleHUDMessage(key + i, driver, true, 10);
+					var gunnerList = HandleHUDMessage(key + i, gunner, true, 20);
+					var sideList = HandleHUDMessage(key + i, gunner, true, 30);
+
+					if (driverList.Count > 10 ||
+						gunnerList.Count > 10 ||
+						sideList.Count > 10)
+					{
+						MessageBox.Show($"File at\r\n{path}\r\nHas more than 10 segments for enter_vehicle. It will not be imported.", "HUD Messages");
+							continue; 
+					}
+
+					result.AddRange(driverList);
+					result.AddRange(gunnerList);
+					result.AddRange(sideList);
 
 				}
 				else
+				{
 					result.AddRange(HandleHUDMessage(key + i, text, false));
 
+					if (name.StartsWith("obj_") || name.StartsWith("dia_"))
+						result.AddRange(HandleHUDMessage("h1obj_" + key + i, text, false));
+				}
 			}
 
 			return result;
 		}
 
-		private List<LocalizationPair> ReadUnicodeList(string path)
+		private List<LocalizationPair> ReadUnicodeList(string path, UnicodeGame game)
 		{
 			string tagpath = GetTagPath(path);
 
@@ -243,12 +267,14 @@ namespace MCCLocalizationEditor.Dialogs
 
 				Match m = Regex.Match(str, @"(?<name>[\S]+)\s*=\s""(?<string>.*)""");
 
-				if (m == null)
-					throw new Exception("unicode list file " + path + " is invalid");
+				if (!m.Success)
+					continue;
 
 				string name = m.Groups["name"].Value;
 				string text = m.Groups["string"].Value;
 				text = CleanString(text, false);
+
+				text = _unicBank.StringToUnicode(text, game);
 
 				result.Add(new LocalizationPair(tagpath + "_" + name, text));
 
@@ -289,7 +315,8 @@ namespace MCCLocalizationEditor.Dialogs
 				result = text.Replace("»", ">>");
 				result = Regex.Replace(result, @"\|n\s+", " ");
 			}
-			return result.Replace("|n", "\n").Replace("’", "'");
+
+			return result.Replace("|n", "\n").Replace("’", "'").Replace("\\?", "?");
 		}
 
 		private string FormatSpecialHUDVehicleMessage(string hmt)
@@ -359,9 +386,6 @@ namespace MCCLocalizationEditor.Dialogs
 					}
 				}
 			}
-
-			if (vehicle && result.Count > 10)
-				throw new Exception("enter_vehicle message has too many variables.");
 
 			return result;
 		}

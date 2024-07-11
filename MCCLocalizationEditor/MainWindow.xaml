@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MCCLocalizationEditor"
         mc:Ignorable="d" Icon="./icon.ico" x:Name="window"
-        Title="MCC Localization Editor" Height="450" Width="800">
+        Title="MCC Localization Editor" Height="450" Width="800"
+		Loaded="window_Loaded">
     <Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto"/>
@@ -23,8 +24,10 @@
 				<MenuItem Header="Open BIN File..." ToolTip="Open a localization binary file for editing." Click="MenuItemOpen_Click" />
 				<MenuItem Header="Save BIN File..." ToolTip="Save a localization binary file for MCC." Click="MenuItemSave_Click" />
 				<Separator/>
-				<MenuItem Header="Import XML File..." ToolTip="Import an XML file previously exported by this tool." Click="MenuItemOpenXML_Click" />
-				<MenuItem Header="Export XML File..." ToolTip="Export an XML file for editing with your preferred text editor application." Click="MenuItemSaveXML_Click" />
+				<MenuItem Header="Open XML File..." ToolTip="Open an XML file previously exported by this tool." Click="MenuItemOpenXML_Click" />
+				<MenuItem Header="Import XML File..." ToolTip="Import and XML file previous exported by this tool over the current list." Click="MenuItemImportXML_Click" />
+				<MenuItem Header="Save XML File..." ToolTip="Save an XML file of the current values for editing with your preferred text editor application." Click="MenuItemSaveXML_Click" />
+				<MenuItem Header="Save Empty XML File..." ToolTip="Save an XML file with no values for editing with your preferred text editor application." Click="MenuItemSaveXMLEmpty_Click" />
 			</MenuItem>
 			<MenuItem Header="Add Entry..." Click="MenuItemAdd_Click" />
 			<MenuItem Header="Import Source Files..." Click="MenuItemImport_Click" />
@@ -69,6 +72,21 @@
 
 		</Expander>
 
+		<StackPanel Orientation="Horizontal" Grid.Row="1" Background="Transparent" HorizontalAlignment="Right" VerticalAlignment="Top"
+					ToolTip="If set, importing/exporting XML and adding entries will convert between engine unicodes and their source names, ie;  &lt;&gt; &amp;a_button">
+			<TextBlock Text="Unicode Set:" VerticalAlignment="Center"/>
+			<ComboBox x:Name="cmbGame" Width="150" SelectedIndex="0" Margin="8,0,0,0">
+				<ComboBoxItem Content="None" Tag="{Binding Source={x:Static Member=local:UnicodeGame.None}}"/>
+				<!--<ComboBoxItem Content="Halo 1" Tag="{Binding Source={x:Static Member=local:UnicodeGame.H1}}"/>-->
+				<ComboBoxItem Content="Halo 2" Tag="{Binding Source={x:Static Member=local:UnicodeGame.H2}}"/>
+				<ComboBoxItem Content="Halo 3" Tag="{Binding Source={x:Static Member=local:UnicodeGame.H3}}"/>
+				<ComboBoxItem Content="Halo 3 ODST" Tag="{Binding Source={x:Static Member=local:UnicodeGame.H3ODST}}"/>
+				<ComboBoxItem Content="Halo Reach" Tag="{Binding Source={x:Static Member=local:UnicodeGame.HReach}}"/>
+				<ComboBoxItem Content="Halo 4" Tag="{Binding Source={x:Static Member=local:UnicodeGame.H4}}"/>
+				<ComboBoxItem Content="Halo 2A" Tag="{Binding Source={x:Static Member=local:UnicodeGame.H2AMP}}"/>
+			</ComboBox>
+		</StackPanel>
+
 		<DataGrid x:Name="EditorGrid" Grid.Row="2" AlternationCount="2" AlternatingRowBackground="#eee" SelectionUnit="FullRow" CanUserResizeRows="False" CanUserResizeColumns="True"
 				  CanUserReorderColumns="False" AutoGenerateColumns="False" CanUserSortColumns="False" ScrollViewer.CanContentScroll="True" VirtualizingPanel.ScrollUnit="Pixel">
 			<DataGrid.Columns>
@@ -92,7 +110,7 @@
 				HorizontalAlignment="Left" VerticalAlignment="Center" Margin="4" Grid.Row="3" />
 
 		<TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" Margin="4" Grid.Row="3">
-			MCC Localization Editor v1.1 by Zeddikins.
+			MCC Localization Editor v1.2 by Zeddikins.
 			<Hyperlink NavigateUri="https://github.com/Lord-Zedd/MCCLocalizationEditor" RequestNavigate="Hyperlink_RequestNavigate">
 				GitHub
 			</Hyperlink>

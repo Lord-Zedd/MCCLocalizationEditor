@@ -69,6 +69,7 @@
     </Compile>
     <Compile Include="LocalizationPair.cs" />
     <Compile Include="ReaderExtender.cs" />
+    <Compile Include="UnicodeHandler.cs" />
     <Page Include="Dialogs\SourceDragDrop.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -124,6 +125,26 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="unicode\h2amcc.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="unicode\h2mcc.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="unicode\h3mcc.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="unicode\h3odstmcc.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="unicode\h4mcc.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="unicode\hreachmcc.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

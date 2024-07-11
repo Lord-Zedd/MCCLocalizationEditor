@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MCCLocalizationEditor.Dialogs"
+        xmlns:le="clr-namespace:MCCLocalizationEditor"
         mc:Ignorable="d"
 		x:Name="window"
         Title="Load Source Strings" Height="450" Width="700">
@@ -27,9 +28,14 @@
 		<StackPanel Orientation="Horizontal" Grid.Row="1" Margin="0,4,0,0">
 			<TextBlock Text="Game:" VerticalAlignment="Center"/>
 			<ComboBox x:Name="cmbGame" Width="150" Margin="4,0,0,0" SelectedIndex="0">
-				<ComboBoxItem Content="Please Select"/>
-				<ComboBoxItem Content="Halo 1"/>
-				<ComboBoxItem Content="Everything Else"/>
+				<ComboBoxItem Content="Please Select" Tag="{Binding Source={x:Static Member=le:UnicodeGame.None}}"/>
+				<ComboBoxItem Content="Halo 1" Tag="{Binding Source={x:Static Member=le:UnicodeGame.H1}}"/>
+				<ComboBoxItem Content="Halo 2" Tag="{Binding Source={x:Static Member=le:UnicodeGame.H2}}"/>
+				<ComboBoxItem Content="Halo 3" Tag="{Binding Source={x:Static Member=le:UnicodeGame.H3}}"/>
+				<ComboBoxItem Content="Halo 3 ODST" Tag="{Binding Source={x:Static Member=le:UnicodeGame.H3ODST}}"/>
+				<ComboBoxItem Content="Halo Reach" Tag="{Binding Source={x:Static Member=le:UnicodeGame.HReach}}"/>
+				<ComboBoxItem Content="Halo 4" Tag="{Binding Source={x:Static Member=le:UnicodeGame.H4}}"/>
+				<ComboBoxItem Content="Halo 2A" Tag="{Binding Source={x:Static Member=le:UnicodeGame.H2AMP}}"/>
 			</ComboBox>
 			<Button Content="Read Files" Width="200" Margin="16,0,0,0" Click="Button_Click" />
 		</StackPanel>
